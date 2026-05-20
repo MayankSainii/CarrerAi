@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareerAI — Intelligent Career Guidance</title>
+<meta name="description" content="AI-powered career guidance for Indian students. Discover your perfect career from 35+ paths with salary insights and personalized roadmaps.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,800;1,9..144,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<button class="floating-ai-btn" onclick="openChat()">🤖 AI Chat</button>
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo" onclick="goHome()">Career<span>AI</span></div>
+  <div class="header-right">
+    <button class="dark-toggle" id="dark-btn" onclick="toggleDark()">🌙 Dark</button>
+    <div class="header-badge">AI-Powered</div>
+    <div id="header-auth"></div>
+    <div class="acct-drop hidden" id="acct-drop"></div>
+  </div>
+</header>
+
+<!-- CAREER MODAL -->
+<div class="modal-overlay" id="career-modal" onclick="handleModalBg(event)">
+  <div class="modal-sheet">
+    <span class="modal-handle"></span>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- AUTH -->
+<section id="screen-auth" class="screen">
+  <div class="auth-center">
+    <div class="auth-brand">Career<span>AI</span></div>
+    <p class="auth-tagline">AI-powered career guidance for every student</p>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Log In</button>
+        <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+      <div class="auth-err" id="auth-err"></div>
+      <div id="form-login" class="auth-form">
+        <div id="saved-accounts-wrap"></div>
+        <div class="af-field"><label class="af-label">Email Address</label><input class="af-input" id="login-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+        <div class="af-field"><label class="af-label">Password</label><input class="af-input" id="login-password" type="password" placeholder="Your password" onkeydown="if(event.key==='Enter')handleLogin()"></div>
+        <button class="btn-auth" onclick="handleLogin()">Log In →</button>
+      </div>
+      <div id="form-signup" class="auth-form hidden">
+        <div class="af-field"><label class="af-label">Full Name</label><input class="af-input" id="signup-name" type="text" placeholder="Your full name" autocomplete="name"></div>
+        <div class="af-field"><label class="af-label">Email Address</label><input class="af-input" id="signup-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+        <div class="af-field">
+          <label class="af-label">Password</label>
+          <input class="af-input" id="signup-password" type="password" placeholder="Min 8 chars, mix letters and numbers" oninput="updatePwStrength(this.value)" onkeydown="if(event.key==='Enter')handleSignup()">
+          <div class="pw-strength-wrap" id="pw-strength-wrap" style="display:none">
+            <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-strength-fill"></div></div>
+            <div class="pw-strength-text" id="pw-strength-text"></div>
+          </div>
+        </div>
+        <button class="btn-auth" onclick="handleSignup()">Create Account →</button>
+      </div>
+      <div class="auth-divider">or</div>
+      <button class="btn-guest" onclick="continueAsGuest()">Continue as Guest →</button>
+    </div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section id="screen-dashboard" class="screen">
+  <div class="dash-hero">
+    <div class="dash-hero-inner">
+      <div class="dash-greeting">Welcome back</div>
+      <div class="dash-name" id="dash-name-el">Hello, <em>Explorer</em></div>
+      <p class="dash-sub">Your AI-powered career hub. Discover where your strengths lead with 35+ career paths, personalized assessments, and real India salary data.</p>
+      <div class="dash-stats-row" id="dash-stats-row">
+        <div class="dash-stat"><div class="dash-stat-num">35+</div><div class="dash-stat-lbl">Career Paths</div></div>
+        <div class="dash-stat"><div class="dash-stat-num">15</div><div class="dash-stat-lbl">Questions</div></div>
+        <div class="dash-stat"><div class="dash-stat-num">Free</div><div class="dash-stat-lbl">Always</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="dash-body">
+    <div id="dash-last-result-wrap"></div>
+    <div class="dash-section-title">⚡ Quick Actions</div>
+    <div class="dash-actions">
+      <div class="dash-action-card" onclick="startQuiz()">
+        <div class="dac-icon">🎯</div><div class="dac-title">Take Assessment</div>
+        <p class="dac-desc">Answer 15 targeted questions and get matched with your ideal career from 35+ paths.</p>
+        <div class="dac-btn">Start Now →</div>
+      </div>
+      <div class="dash-action-card" onclick="showScreen('screen-home')">
+        <div class="dac-icon">🗺️</div><div class="dac-title">Explore All Careers</div>
+        <p class="dac-desc">Browse all 35 career paths with salary ranges, demand levels, and learning roadmaps.</p>
+        <div class="dac-btn">Explore →</div>
+      </div>
+      <div class="dash-action-card" id="dac-chat-card" onclick="openChatFromDash()" style="display:none">
+        <div class="dac-icon">🤖</div><div class="dac-title">AI Career Advisor</div>
+        <p class="dac-desc">Chat with AI about your matched career — skills, salary, jobs, and more. Free via Gemini.</p>
+        <div class="dac-btn">Chat Now →</div>
+      </div>
+      <div class="dash-action-card" id="dac-retake-card" onclick="startQuiz()" style="display:none">
+        <div class="dac-icon">🔄</div><div class="dac-title">Retake Assessment</div>
+        <p class="dac-desc">Interests changed? Retake the quiz to get a fresh career match.</p>
+        <div class="dac-btn">Retake →</div>
+      </div>
+      <div class="dash-action-card" onclick="showScreen('screen-home')">
+        <div class="dac-icon">📊</div><div class="dac-title">Salary Explorer</div>
+        <p class="dac-desc">Compare salaries across all 35 careers — fresher to senior level in India.</p>
+        <div class="dac-btn">Compare →</div>
+      </div>
+    </div>
+    <div class="dash-section-title">🔥 Trending Careers</div>
+    <div class="dash-careers-strip" id="dash-trending"></div>
+    <button class="dash-see-all" onclick="showScreen('screen-home')">View all 35 careers →</button>
+  </div>
+</section>
+
+<!-- PATH SELECTION -->
+<section id="screen-path" class="screen">
+  <div style="width:100%;max-width:800px;padding:0 24px">
+    <button class="back-btn" onclick="goHome()">← Back to Dashboard</button>
+  </div>
+  <div class="path-wrap">
+    <h2 class="path-heading">Which direction are you<br><em>leaning towards?</em></h2>
+    <p class="path-sub">Choose your path for a personalized 15-question career assessment</p>
+    <div class="path-grid">
+      <div class="path-card" onclick="selectPath('tech')">
+        <span class="path-card-icon">💻</span>
+        <div class="path-card-title">Technology and Engineering</div>
+        <p class="path-card-desc">Build software, design AI, secure systems, create apps, architect cloud infrastructure, and more in the digital world.</p>
+        <div class="path-card-count">17 career paths</div>
+        <div class="path-card-tags">
+          <span class="path-tag">Software Dev</span><span class="path-tag">AI and ML</span>
+          <span class="path-tag">Cybersecurity</span><span class="path-tag">Cloud</span><span class="path-tag">Game Dev</span>
+        </div>
+      </div>
+      <div class="path-card" onclick="selectPath('nontech')">
+        <span class="path-card-icon">🌟</span>
+        <div class="path-card-title">Professional and Creative</div>
+        <p class="path-card-desc">Medicine, law, business, education, arts, culinary, sports, fashion — careers that shape society and culture.</p>
+        <div class="path-card-count">18 career paths</div>
+        <div class="path-card-tags">
+          <span class="path-tag">Doctor and Law</span><span class="path-tag">Business</span>
+          <span class="path-tag">Creative Arts</span><span class="path-tag">Education</span><span class="path-tag">Finance</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPLORE -->
+<section id="screen-home" class="screen">
+  <div class="screen-nav-bar">
+    <button class="back-btn" onclick="goHome()">← Back to Dashboard</button>
+  </div>
+  <div class="explore-hero">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+      <div>
+        <h2 class="explore-title">Explore <em>all 35</em> career paths</h2>
+        <p style="font-size:.78rem;color:var(--ink3);font-weight:300">Click any card to view full salary range, demand level and learning roadmap</p>
+      </div>
+      <button class="btn-start-quiz" onclick="startQuiz()">🎯 Take Assessment →</button>
+    </div>
+  </div>
+  <div class="careers-section">
+    <div class="sec-divider"><span>💻 Technology Careers (17)</span></div>
+    <div class="careers-grid" id="tech-grid"></div>
+    <div class="sec-divider"><span>🌟 Professional and Creative Careers (18)</span></div>
+    <div class="careers-grid" id="nontech-grid"></div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="screen-quiz" class="screen">
+  <button class="back-btn" onclick="showScreen('screen-path')" style="margin-left:0">← Change Path</button>
+  <div class="quiz-path-badge" id="quiz-path-badge">🎯 Career Assessment</div>
+  <div class="quiz-header">
+    <h2>Career Assessment</h2>
+    <p>Answer honestly — no right or wrong answers. Your responses are matched against 35+ career paths.</p>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-meta"><span class="progress-label">Your progress</span><span class="progress-count" id="progress-count">1 / 15</span></div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar" style="width:6.67%"></div></div>
+  </div>
+  <div class="q-card" id="q-card"></div>
+  <div class="quiz-nav">
+    <button class="btn-ghost" id="btn-prev" onclick="prevQ()">← Back</button>
+    <button class="btn-next" id="btn-next" onclick="nextQ()" disabled>Continue →</button>
+  </div>
+</section>
+
+<!-- LOADING -->
+<section id="screen-loading" class="screen">
+  <div class="loader-ring"></div>
+  <div class="loader-text" id="loading-text">Analyzing your profile…</div>
+</section>
+
+<!-- RESULT (dynamically rendered) -->
+<section id="screen-result" class="screen"></section>
+
+<!-- CHAT -->
+<section id="screen-chat" class="screen">
+  <div class="screen-nav-bar">
+    <button class="back-btn" onclick="goBackFromChat()">← Back</button>
+  </div>
+  <div class="chat-inner">
+    <div class="chat-header">
+      <h2>🤖 AI Career Advisor</h2>
+      <p>Powered by AI. Ask anything about your career — skills, salary, resources, next steps.</p>
+    </div>
+
+    <div class="chat-suggestions" id="chat-suggestions">
+      <span class="sug-chip" onclick="sendSugg(this)">What skills should I learn first?</span>
+      <span class="sug-chip" onclick="sendSugg(this)">How long to land my first job?</span>
+      <span class="sug-chip" onclick="sendSugg(this)">Expected fresher salary in India?</span>
+      <span class="sug-chip" onclick="sendSugg(this)">Best free resources to learn?</span>
+      <span class="sug-chip" onclick="sendSugg(this)">Top companies hiring for this?</span>
+      <span class="sug-chip" onclick="sendSugg(this)">Degree vs self-study?</span>
+    </div>
+    <div class="chat-window" id="chat-window"></div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Ask anything about your career path…" onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" id="chat-send-btn" onclick="sendChat()">Send ↑</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand-col">
+        <div class="footer-logo">Career<span>AI</span></div>
+        <p class="footer-tagline">AI-powered career guidance for every Indian student. Discover your perfect path with personalized assessments, salary insights, and step-by-step roadmaps — completely free.</p>
+        <div class="footer-social">
+          <a class="social-btn" href="https://github.com" target="_blank" title="GitHub">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.11.82-.26.82-.58v-2.02c-3.34.73-4.03-1.6-4.03-1.6-.55-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1-.32 3.3 1.23.96-.27 1.98-.4 3-.4s2.04.13 3 .4c2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.23 1.9 1.23 3.22 0 4.61-2.8 5.63-5.48 5.92.43.37.82 1.1.82 2.22v3.29c0 .32.22.7.83.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          </a>
+          <a class="social-btn" href="https://x.com" target="_blank" title="X / Twitter">𝕏</a>
+          <a class="social-btn" href="https://linkedin.com" target="_blank" title="LinkedIn">in</a>
+          <a class="social-btn" href="mailto:careerai.india@gmail.com" title="Email">✉</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Platform</div>
+        <ul class="footer-links">
+          <li><span onclick="goHome()">Home</span></li>
+          <li><span onclick="startQuiz()">Take Assessment</span></li>
+          <li><span onclick="showScreen('screen-home')">Explore Careers</span></li>
+          <li><span onclick="currentUser?showScreen('screen-dashboard'):showScreen('screen-auth')">Dashboard</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Careers</div>
+        <ul class="footer-links">
+          <li><span onclick="showScreen('screen-home')">Tech Careers (17)</span></li>
+          <li><span onclick="showScreen('screen-home')">Professional (18)</span></li>
+          <li><span onclick="showScreen('screen-home')">Salary Guide</span></li>
+          <li><span onclick="showScreen('screen-home')">Learning Roadmaps</span></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Contact Us</div>
+        <div class="footer-contact-item">📧 <a href="mailto:careerai.india@gmail.com">careerai.india@gmail.com</a></div>
+        <div class="footer-contact-item">💬 <span>Support and Feedback</span></div>
+        <div class="footer-contact-item">📍 <span>India 🇮🇳</span></div>
+        <div class="footer-contact-item">⭐ <a href="https://github.com" target="_blank">Star on GitHub</a></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 <strong>CareerAI</strong>. All rights reserved. Built with ❤️ for Indian students. | <a href="#">Privacy Policy</a> · <a href="#">Terms of Use</a></div>
+      <div class="footer-badges">
+        <span class="footer-badge">35+ Careers</span>
+        <span class="footer-badge">Free Forever</span>
+        <span class="footer-badge">Open Source</span>
+        <span class="footer-badge">India-Focused</span>
+      </div>
+      <div class="footer-made">Made with <span>♥</span> for students across India</div>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

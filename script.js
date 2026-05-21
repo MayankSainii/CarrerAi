@@ -839,4 +839,4 @@ initHome();
 renderSavedAccounts();
 if(currentUser){initDashboard();showScreen('screen-dashboard');}
 else showScreen('screen-auth');
- 
+  

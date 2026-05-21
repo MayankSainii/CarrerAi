@@ -221,7 +221,7 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-// Start the server
+// Start the server 
 app.listen(PORT, () => {
   console.log(`==================================================`);
   console.log(`🚀 CareerAI Server started successfully!`);
